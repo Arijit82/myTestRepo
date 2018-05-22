@@ -2,71 +2,66 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 from flask_cors import CORS
-
 from pymongo import MongoClient
+
 app = Flask(__name__)
 CORS(app)
 
-
-client = MongoClient('localhost', 5000)
+client = MongoClient('localhost')
 app.debug = True
-
-
 
 db = client.app
 
-heroesdb=[
- {
- 'id':'01',
- 'name':'Wonder Woman',
- },
- {
- 'id':'02',
- 'name':'Catwoman',
- },
- {
-  'id': '03',
-  'name': 'Captain Marvel',
- }
- ]
 @app.route('/',methods=['GET'])
 def get():
-    return jsonify(heroesdb)
+    HEROES = list()
+    for hero in db.heroesdb.find({}, {"_id":0}):
+        HEROES.append(hero)
+    return jsonify(HEROES)
     # return jsonify({'heroes':heroesdb})
 
 
-@app.route('/update/<heroId>',methods=['GET','PUT'])
-def gethero(heroId):
-    if request.method == 'PUT':
-        return (request.method)
-    else:
+@app.route('/get/<heroId>',methods=['GET'])
+def getHero(heroId):
 
-        hero = [ heroes for heroes in heroesdb if (heroes['id'] == heroId) ]
-        return jsonify(hero)
+       heroname=db.heroesdb.find();
+       print('all data from database')
+       HeroName = [heroes for heroes in db.heroesdb if (heroes['id'] == heroId)]
+       return jsonify(HeroName)
 
 
-@app.route('/insert/<id>/<name>',methods=['POST'])
-
-def insert_data(id=None, name=None):
-	if id != None and name != None:
-		db.users.insert_one({
-			"id": id,
-			"name": name
-		})
-		return 'Data inserted successfully: ' +  id + ', ' \
-		+ name
+@app.route('/insert/<heroId>/<name>',methods=['POST'])
+def insert_data(heroId=None, name=None):
+	if heroId != None and name !=None:
+		db.heroesdb.insert_one({
+            "id": heroId, "name": name
+        })
+		return 'Data inserted successfully: ' +  heroId + ', ' \
+               + name
 	else:
 		return 'Data insufficient. Please try again!'
 
 
-@app.route('/delete/<empId>',methods=['DELETE'])
-def deletehero(heroId):
-    hero = [hero for hero in heroesdb if (heroesdb['id'] == heroId)]
-    if len(hero) == 0:
-      return ("error")
-    heroesdb.remove(hero[0])
-    return jsonify({'response':'Success'})
+@app.route('/update/<heroId>/<name>',methods=['PUT'])
+def update(heroId, name):
+        if heroId != None and name != None:
+            HeroName = [heroes for heroes in db.heroesdb if (heroes['id'] == heroId)]
+            db.heroesdb.update_one({"id": heroId},
+                    {"$set":
+                        {
+                            "name":name
+                        },}
+                    )
+            return ("\nRecords updated successfully\n")
 
+@app.route('/delete/<heroId>',methods=['DELETE'])
+def delete_hero(heroId):
+    try:
+        for hero in db.heroesdb.find({}, {"_id": 0}):
+            db.heroesdb.delete_many({"id": heroId })
+            return '\nDeletion successful\n'
+    except Exception as e:
+        return (str(e))
 
 if __name__ == '__main__':
- app.run("0.0.0.0", 80)
+ app.run('0.0.0.0',80)

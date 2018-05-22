@@ -6,7 +6,7 @@ client = MongoClient('localhost', 27017)
 
 app.debug = True
 
-db = client.app
+db = client.adtg
 
 @app.route("/")
 def hello():
