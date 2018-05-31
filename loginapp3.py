@@ -23,7 +23,6 @@ def validate(username, pas):
         if user.find_one({'pas': pas}) == None:
             return jsonify({'status' : False,'message' : 'Logged In Failed...!!'})
         else:
-            session['user'] = request.json['username']
             return jsonify({'status' : True,'message' : 'Logged In Successfully...!!'})
 
 def getdetails(username):
@@ -91,19 +90,25 @@ def dropsession():
     return jsonify({'status': True, 'message': 'Session Dropped...!!'})
 
 @app.route('/api/v1/dashboard', methods=['POST'])
-def dashboard():          #check for user if in session,get details from db,show details if in session, return false if not in session
-        if 'user' in session:
-            if user.find_one({'username': session['user']}):
-                try:
-                    userdet = user.find_one({'username': session['user']}, {"_id": 0})
-                    if userdet != None:
-                        return jsonify(userdet)
-                    else:
-                        return "User details couldn't be found"
-                except Exception as e:
-                    return str(e)
-            return jsonify({'status': False, 'message': 'User not in Database...!!'})
-        return jsonify({'status': True, 'message': 'User not in session...!!'})
+def dashboard():
+    session['user'] = 'sonakshi'
+    #if 'user' in session:
+        #return session['user']
+    #return 'NOT logged in'
+    if 'user' in session:
+        if user.find_one({'username': session['user']}):
+            try:
+                details = user.find_one({'username': session['user']}, {"_id": 0})
+                status = True
+                message = 'User details fetched...!!'
+                if details != None:
+                    return jsonify({'details': details, 'status':status, 'message':message})
+                else:
+                    return "User details couldn't be found"
+            except Exception as e:
+                return str(e)
+        return jsonify({'status': False, 'message': 'User not in Database...!!'})
+    return jsonify({'status': True, 'message': 'User not in session...!!'})
 
 
 if __name__ == '__main__':
