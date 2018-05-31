@@ -18,7 +18,6 @@ def get():
     for hero in db.heroesdb.find({}, {"_id":0}):
         HEROES.append(hero)
     return jsonify(HEROES)
-    # return jsonify({'heroes':heroesdb})
 
 
 @app.route('/get/<heroId>',methods=['GET'])
@@ -29,6 +28,13 @@ def getHero(heroId):
        HeroName = [heroes for heroes in db.heroesdb if (heroes['id'] == heroId)]
        return jsonify(HeroName)
 
+
+@app.route('/details/',methods=['POST'])
+def details():
+    id=request.json['id']
+    hero = db.heroesdb.find_one({"id":id}, {"_id": 0})
+    print (hero)
+    return jsonify(hero)
 
 @app.route('/insert/<heroId>/<name>',methods=['POST'])
 def insert_data(heroId=None, name=None):
@@ -53,7 +59,7 @@ def update(heroId, name):
                         },}
                     )
             return ("\nRecords updated successfully\n")
-
+        return ("uid not found")
 @app.route('/delete/<heroId>',methods=['DELETE'])
 def delete_hero(heroId):
     try:
@@ -64,4 +70,4 @@ def delete_hero(heroId):
         return (str(e))
 
 if __name__ == '__main__':
- app.run('0.0.0.0',80)
+ app.run()
