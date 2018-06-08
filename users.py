@@ -57,8 +57,8 @@ def update_insert():
                                     "name": name,
                                     "email": email,
                                     "gender": gender
-                                }, }
-                            )
+                                },
+                            })
         return jsonify({'result' : 'success using PUT'})
     else:
         if request.method =='POST':

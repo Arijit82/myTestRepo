@@ -4,10 +4,14 @@ from flask import jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
 from datetime import datetime
+from mongo import chk2
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 CORS(app)
+
+chk2.initializeRoute(app)
+
 
 client = MongoClient('localhost')
 
@@ -23,6 +27,7 @@ def validate(username, pas):
         if user.find_one({'pas': pas}) == None:
             return jsonify({'status' : False,'message' : 'Logged In Failed...!!'})
         else:
+            session['user'] = request.json['username']
             return jsonify({'status' : True,'message' : 'Logged In Successfully...!!'})
 
 def getdetails(username):
@@ -31,6 +36,7 @@ def getdetails(username):
     if userdet != None:
         return jsonify(userdet)
     else:
+        session['user'] = request.json['username']
         return jsonify({'status' : False, 'message' : 'Details not Found...!!'})
 
 
@@ -92,9 +98,6 @@ def dropsession():
 @app.route('/api/v1/dashboard', methods=['POST'])
 def dashboard():
     session['user'] = 'sonakshi'
-    #if 'user' in session:
-        #return session['user']
-    #return 'NOT logged in'
     if 'user' in session:
         if user.find_one({'username': session['user']}):
             try:
@@ -109,6 +112,10 @@ def dashboard():
                 return str(e)
         return jsonify({'status': False, 'message': 'User not in Database...!!'})
     return jsonify({'status': True, 'message': 'User not in session...!!'})
+
+
+
+
 
 
 if __name__ == '__main__':
