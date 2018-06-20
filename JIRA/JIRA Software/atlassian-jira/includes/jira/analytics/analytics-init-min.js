@@ -1,0 +1,1 @@
+require(["jquery","jira/analytics"],function(a,c){"use strict";function t(){a("[data-track-pageview]").each(function(t,n){c.send({name:a(n).data("track-pageview")})})}a(document).on("click","[data-track-click]",function(){c.send({name:a(this).data("track-click")})}),a(t)});

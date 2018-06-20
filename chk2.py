@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
-from flask import Flask, request, session
+from flask import Flask, request, session, render_template
+from werkzeug import secure_filename
 from flask import jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
@@ -10,7 +11,7 @@ def initializeRoute(app):
     client = MongoClient('localhost')
     db = client.app     #database
     post = db.posts   #objects in database
-    ReqFields =[{"fieldName":"userid","default":"userid"},{"fieldName":"title","default":"title"},{"fieldName":"projid","default":"projid"}]
+    ReqFields =[{"fieldName":"userid","default":"sonakshi"},{"fieldName":"title","default":"title"},{"fieldName":"projid","default":"projid"}]
     default_fields = {"desc": " ",
                       "userid": " ",
                       "title": " ",
@@ -49,6 +50,7 @@ def initializeRoute(app):
 
     @app.route('/api/v1/posts', methods=['POST', 'PUT'])
     def posts():
+        session['userid'] = 'sonakshi'
         data= request.json
         datadict= dict(data)
         if request.method == 'PUT':#updation
@@ -59,12 +61,12 @@ def initializeRoute(app):
                                     {
                                         "$set":
                                             {
-                                                "userid": datadict['userid'],
+                                                "userid": session['userid'],
                                                 "title": datadict['title'],
                                                 "desc": datadict['desc'],
                                                 "postid": datadict['postid'],
-                                                "image": datadict['image'],
-                                                "video": datadict['video'],
+                                                "images": datadict['images'],
+                                                "videos": datadict['videos'],
                                                 "reference": datadict['reference'],
                                                 "projname": datadict['projname'],
                                                 "projid": datadict['projid'],
@@ -77,6 +79,7 @@ def initializeRoute(app):
                                                 "subtype": datadict['subtype'],
                                                 "priority": datadict['priority'],
                                                 "pid": datadict['pid'],
+                                                "jira": False,
                                                 "DOC": datetime.now(),
                                                 "DOM": datetime.now()
 
@@ -95,12 +98,13 @@ def initializeRoute(app):
                     if CheckValidRequest(datadict,ReqFields):
                         data = set_default_val(datadict,default_fields)
 
-                        post.insert_one({"userid": datadict['userid'],
+                        post.insert_one({
+                                         "userid":session['userid'],
                                          "title": datadict['title'],
                                          "desc": datadict['desc'],
                                          "postid": datadict['postid'],
-                                         "image": datadict['image'],
-                                         "video": datadict['video'],
+                                         "images": datadict['images'],
+                                         "videos": datadict['videos'],
                                          "reference": datadict['reference'],
                                          "projname": datadict['projname'],
                                          "projid": datadict['projid'],
@@ -113,6 +117,7 @@ def initializeRoute(app):
                                          "subtype": datadict['subtype'],
                                          "priority": datadict['priority'],
                                          "pid": datadict['pid'],
+                                            "jira":False,
                                          "DOC": datetime.now(),
                                          "DOM": datetime.now()
                                          })
@@ -155,6 +160,9 @@ def initializeRoute(app):
         except Exception as e:
             print (e)
             return jsonify({'status':False})
+
+
+
 
 
 

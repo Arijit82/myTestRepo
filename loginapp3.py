@@ -1,14 +1,21 @@
 from flask import Flask, request, session
 import os
+import time
+from jira import JIRA
 from flask import jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
 from datetime import datetime
+from werkzeug.utils import secure_filename
+from flask import send_from_directory
 from mongo import chk2
+import test
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 CORS(app)
+
+AttachmentLocation = './uploads/'
 
 chk2.initializeRoute(app)
 
@@ -114,6 +121,34 @@ def dashboard():
     return jsonify({'status': True, 'message': 'User not in session...!!'})
 
 
+UPLOAD_FOLDER = '../uploads'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4'])
+
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/upload', methods=['GET','POST'])
+def upload_file():
+    try:
+        if request.method == 'POST':
+            files = request.files.getlist("file")
+
+            PATHS = []
+
+            for _f in files:
+                FilePath = secure_filename(str( int( time.time() ) ) + "_" + _f.filename )
+                _f.save(os.path.join(app.config['UPLOAD_FOLDER'],FilePath ))
+                PATHS.append(AttachmentLocation+ FilePath)
+            return jsonify( {"status": True , "data":PATHS , "message": "Uploaded Successully" } )
+
+
+    except Exception as e:
+        print(e)
+        return jsonify({"status": False, "message": "Upload Failed"})
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
 
 
 
