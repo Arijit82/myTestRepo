@@ -1,8 +1,0 @@
-[2018-06-14 10:31:47] [info]  [26692] Commons Daemon procrun (1.0.15.0 64-bit) started
-[2018-06-14 10:31:47] [info]  [26692] Service JIRASoftware140618102721 name Atlassian JIRA
-[2018-06-14 10:31:49] [info]  [26692] Service 'JIRASoftware140618102721' installed
-[2018-06-14 10:31:49] [info]  [26692] Commons Daemon procrun finished
-[2018-06-14 10:32:40] [info]  [24740] Commons Daemon procrun (1.0.15.0 64-bit) started
-[2018-06-14 10:32:40] [info]  [24740] Running 'JIRASoftware140618102721' Service...
-[2018-06-14 10:32:40] [info]  [22116] Starting service...
-[2018-06-14 10:32:41] [info]  [22116] Service started in 1238 ms.

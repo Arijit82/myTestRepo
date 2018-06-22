@@ -25,7 +25,6 @@ client = MongoClient('localhost')
 
 db = client.app     #database
 user = db.logindb   #objects in database
-
 def validate(username, pas):
     #validates log in route
     if user.find_one({'username': username}) == None:
@@ -104,7 +103,7 @@ def dropsession():
 
 @app.route('/api/v1/dashboard', methods=['POST'])
 def dashboard():
-    session['user'] = 'sonakshi'
+    session['user'] = 'Sonakshi'
     if 'user' in session:
         if user.find_one({'username': session['user']}):
             try:

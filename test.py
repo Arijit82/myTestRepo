@@ -85,12 +85,12 @@ def insert():
 
             data = PostModel(_posts).getJson()
             _ = requests.post(url, json=data, auth=('Arijit82', 'admin'))
-            print(_.text)
+            # print(_.text)
             post.update_one({'_id': _id}, {"$set": {'jira': True}})
-            print(data)
+            # print(data)
 
 
-# insert()
+ # insert()
 #
 # print(jira.editmeta("TRAZ-154"))
 data2 = {
@@ -151,4 +151,4 @@ def update():
         return print(e)
 
 
-update()
+# update()

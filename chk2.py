@@ -11,7 +11,7 @@ def initializeRoute(app):
     client = MongoClient('localhost')
     db = client.app     #database
     post = db.posts   #objects in database
-    ReqFields =[{"fieldName":"userid","default":"sonakshi"},{"fieldName":"title","default":"title"},{"fieldName":"projid","default":"projid"}]
+    ReqFields =[{"fieldName":"userid","default":"arijit"},{"fieldName":"title","default":"title"},{"fieldName":"projid","default":"projid"}, {"fieldName":"postid","default":"postid"}]
     default_fields = {"desc": " ",
                       "userid": " ",
                       "title": " ",
@@ -50,9 +50,10 @@ def initializeRoute(app):
 
     @app.route('/api/v1/posts', methods=['POST', 'PUT'])
     def posts():
-        session['userid'] = 'sonakshi'
+        session['userid'] = 'Sonakshi'
         data= request.json
         datadict= dict(data)
+
         if request.method == 'PUT':#updation
             try:
                 if CheckValidRequest(datadict, ReqFields)==True:
@@ -85,6 +86,7 @@ def initializeRoute(app):
 
                                             },
                                     })
+                    print(datadict)
                     return jsonify({'status': True, 'message': 'post updated using PUT ...!!'})
                     # return str(datadict)
                 else:
@@ -99,7 +101,7 @@ def initializeRoute(app):
                         data = set_default_val(datadict,default_fields)
 
                         post.insert_one({
-                                         "userid":session['userid'],
+                                         "userid":datadict['userid'],
                                          "title": datadict['title'],
                                          "desc": datadict['desc'],
                                          "postid": datadict['postid'],
@@ -117,7 +119,7 @@ def initializeRoute(app):
                                          "subtype": datadict['subtype'],
                                          "priority": datadict['priority'],
                                          "pid": datadict['pid'],
-                                            "jira":False,
+                                         "jira":False,
                                          "DOC": datetime.now(),
                                          "DOM": datetime.now()
                                          })
@@ -131,7 +133,7 @@ def initializeRoute(app):
 
     @app.route('/api/v1/getposts', methods=['GET','OPTIONS'])
     def get():
-        session['userid'] = 'sonakshi'
+        session['userid'] = 'Sonakshi'
         if 'userid' in session:
             posts = list()
             if db.posts.count() > 0:
@@ -143,26 +145,42 @@ def initializeRoute(app):
         return jsonify({'status': False, 'message': 'user not logged in ...!!'})
 
 
-    @app.route('/api/v1/get/<pid>', methods=['GET'])
-    def getp(pid):
+    @app.route('/api/v1/get/<postid>', methods=['GET'])
+    def getp(postid):
+
+        session['userid'] = 'Sonakshi'
         try:
-            session['userid'] = 'sonakshi'
-            if 'userid' in session:
-                POSTS = list()
-                if post.count() > 0:
-                    for _posts in post.find({'pid':str(pid),'userid':session['userid']}, {"_id": 0}):
-                        POSTS.append(_posts)
-                        print(POSTS)
-                    return jsonify(POSTS)
-                else:
-                    return jsonify([])
-            return jsonify({'status':False, 'message': 'user not in session'})
+           if post.count() > 0:
+            for _posts in post.find({'postid':str(postid), 'userid': session['userid']}, {"_id": 0}):
+                print(_posts)
+                return jsonify(_posts)
+            else:
+                return jsonify([])
+
         except Exception as e:
             print (e)
             return jsonify({'status':False})
 
+    @app.route('/api/v1/delete', methods=['POST'])
+    def delete():
+        try:
+            postid=request.json["postid"]
+            print(postid)
+            if post.count()>0:
+                if post.find_one({"postid":postid}, {"_id": 0}):
+                    print(postid)
+                    db.posts.delete_one({"postid": postid})
+                    return jsonify({'status':True, 'message': 'post deleted....'})
+                else:
+                    return jsonify({'status':False, 'message': 'pid not found....'})
+            return jsonify({'status':False, 'message': 'No posts in database....'})
+        except Exception as e:
+            print (e)
+            return jsonify({'status':False, 'message': 'Exception....'})
 
 
-
-
-
+# client = MongoClient('localhost')
+# db = client.app     #database
+# post = db.posts   #objects in database
+# _=db.posts.delete_one({"postid": "1234"})
+# print(_.deleted_count)
